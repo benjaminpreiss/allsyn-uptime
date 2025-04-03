@@ -53,3 +53,45 @@ A potential setup: One signature is the wallet itself, while the other signature
 ## Security model
 
 The security model here assumes, that the phone of a user is safe. If the phone is compromised, the alerts might never reach the user via the notifications app.
+
+## Measurements
+
+We have various requirements for measurements:
+
+- Retrieve certificate details (Can be done in node.js via `net` and `tls` package). If the endpoint does not support TLS, there will be no certificate to store
+- Domain expiry date, if the endpoint contains a Domain (Can be done in node.js with `whois` package)
+- zkproof that the returned data from website contained a keyword and the data was signed by a certain certificate.
+
+## Payment scheme
+
+Leo wallet seems to be the only wallet currently supporting ALEO.
+Users can pay with credit cards on the platform or onramp to their wallet.
+Should they pay with credit card I can sponsor their fees from my wallet.
+
+1. Connect wallet
+2. Fund wallet
+    - a) Setup a subscription via stripe (optional). In that case I will fund the money on aleo net to the recipient.
+    - or b) Fund wallet yourself
+3. Setup allowance / stream on aleo to allsyn wallet (i.e. subscription)
+4. Mint NFT for every endpoint that is to be surveilled
+
+## Wallet
+
+It might be best to embed the aleo wallet in the product itself. That way we can get:
+
+- Passkey, biometrics and proof of identity (e.g. zpass, privadoID, rarimo) support for authentication
+- store seed phrase in randa.mu dcrypt using the above authentication mechanisms -> No recovery needed.
+- This wallet can also be used in combination with notfications as a mobile app to receive alerts.
+
+## Road to MVP 1.0
+
+**Goals**
+- Login to app by signing message on leo wallet - login session is not persisted for now.
+- Setup a simple smart contract on aleo that allows you to mint NFT endpoints.
+    - Expose READ, UPDATE, DELETE functionalities on the frontend for a logged in user
+    - Test the endpoint with a regex before submission
+- Read NFTs from aleo in checker network. Read from test-net in development mode. Perform checks against data from NFTs.
+
+**Notes**
+- The data stored in the NFTs is only the endpoint data.
+- We only check http / https endpoints currently. They will only contain boolean data on whether the check was successful.
