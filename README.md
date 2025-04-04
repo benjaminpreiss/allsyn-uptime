@@ -95,3 +95,11 @@ It might be best to embed the aleo wallet in the product itself. That way we can
 **Notes**
 - The data stored in the NFTs is only the endpoint data.
 - We only check http / https endpoints currently. They will only contain boolean data on whether the check was successful.
+
+## Notes on checker network incentives
+
+Payouts depend on a robust data foundation. How does one know, what the trackrecord of a peer is accurate?
+
+Through random committee selection peers can be selected to execute a specific round of measurements. These peers are then expected to post their measurements in an (ideally decentralized) database.
+
+This database can then be queried (by selecting the peer itself and a random other node) to get the number how many measurements a specific peer has completed and how he was aligned with the other peers on these measurements. The peer needs to prove for each time interval, that he was actually chosen for that time interval. From there payouts can be done, each payout linking to the data-set that was constructed.
