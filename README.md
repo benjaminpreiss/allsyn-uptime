@@ -103,3 +103,12 @@ Payouts depend on a robust data foundation. How does one know, what the trackrec
 Through random committee selection peers can be selected to execute a specific round of measurements. These peers are then expected to post their measurements in an (ideally decentralized) database.
 
 This database can then be queried (by selecting the peer itself and a random other node) to get the number how many measurements a specific peer has completed and how he was aligned with the other peers on these measurements. The peer needs to prove for each time interval, that he was actually chosen for that time interval. From there payouts can be done, each payout linking to the data-set that was constructed.
+
+## NFTs
+
+- How to know when an NFT was valid?
+- When can NFTs
+
+1. Users can either mint an NFT themselves or Allsyn smart contract mints it for them and transfers it to their wallet
+2. Users sign an allowance for the payouts smart contract that is allowed to either
+    - take some aleo balance, mint and transfer an NFT to the
