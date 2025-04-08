@@ -4,12 +4,14 @@ program allsyn.aleo {
     // the public balance of each token for each owner is tracked by token_registry for me.
     // In allsyn, we register a new token for every valuation.
 
+    // Maximum allowed evaluation deviation when minting receipts
+    const MAX_PERCENTAGE_DEVIATION: u64 = 3u64;
+    // the smart contract admin
+    const ALLSYN_ADMIN: address = aleo1007a9le5mn6pj08fdssmcvw0y9nc6x63erpll6aax3yech3qkcysdz39f2;
+
     // historical data on the allsyn token id minted on official token registry
     // keep up to date token id at index 0
     mapping allsyn_token_id: u64 => field;
-
-    // the smart contract admin
-    const ALLSYN_ADMIN: address = aleo1007a9le5mn6pj08fdssmcvw0y9nc6x63erpll6aax3yech3qkcysdz39f2;
 
     // receipt valuations (in allsyn tokens / # check cycles) when they were minted.
     mapping receipt_valuations: field => DecimalValue;
@@ -116,8 +118,43 @@ program allsyn.aleo {
         return allsyn_token_amount;
     }
 
+    inline u8Max(a: u8, b: u8) -> u8 {
+        if a > b {
+            return a;
+        } else {
+            return b;
+        }
+    }
+
+    inline u64AbsDiff(a: u64, b: u64) -> u64 {
+        if a > b {
+            return a - b;
+        } else {
+            return b - a;
+        }
+    }
+
+    inline calculate_percentage_deviation(
+        current: DecimalValue,
+        reference: DecimalValue
+    ) -> u64 {
+        // Normalize the significands by adjusting them using the larger exponent
+        let max_exponent: u8 = u8Max(current.neg_exponent, reference.neg_exponent);
+
+        let adjusted_current: u64 = current.significand * safe_pow10(max_exponent - current.neg_exponent);
+        let adjusted_reference: u64 = reference.significand * safe_pow10(max_exponent - reference.neg_exponent);
+
+        // Calculate the absolute difference between adjusted significands
+        let difference: u64 = u64AbsDiff(adjusted_current, adjusted_reference);
+
+        // Calculate the percentage deviation
+        let percentage_deviation: u64 = (difference * 100u64) / adjusted_reference;
+        return percentage_deviation;
+    }
+
     // buy check cycles <-> mint private receipt
     // pay with allsyn token
+    // this transition will fail if the passed current_check_cycle is not within reasonable bounds.
     async transition mint_private_receipt (
         private input: token_registry.aleo/Token,
         // recipient of receipts
@@ -146,7 +183,7 @@ program allsyn.aleo {
             check_cycles: check_cycles,
             valuation: current_check_cycle_valuation
         };
-        let mint_receipt_future: Future = finalize_mint_receipt(receipt_nft_commit, check_cycles, input.token_id, current_check_cycle_valuation, allsyn_token_future);
+        let mint_receipt_future: Future = finalize_mint_receipt(receipt_nft_commit, check_cycles, input.token_id, current_check_cycle_valuation, allsyn_token_future, data);
         return (allsyn_token_change, receipt_change, mint_receipt_future);
     }
 
@@ -155,7 +192,8 @@ program allsyn.aleo {
         balance: u64,
         input_token_id : field,
         current_check_cycle_valuation: DecimalValue,
-        allsyn_token_future : Future
+        allsyn_token_future : Future,
+        data: Data
     ) {
         allsyn_token_future.await();
         // commit has to be new to balances, as only new receipts can be minted.
@@ -168,9 +206,15 @@ program allsyn.aleo {
         // check_cycle_valuation needs to exist
         assert_eq(Mapping::contains(check_cycle_valuation, 0u64), true);
 
-        assert_eq(Mapping::get(check_cycle_valuation, 0u64), current_check_cycle_valuation);
+        // check if current_check_cycle_valuation is within allowed percentage deviation
+        let reference_valuation: DecimalValue = Mapping::get(check_cycle_valuation, 0u64);
+        let percentage_deviation: u64 = calculate_percentage_deviation(current_check_cycle_valuation, reference_valuation);
+        assert(percentage_deviation <= MAX_PERCENTAGE_DEVIATION);
 
         // update balances
         Mapping::set(balances, nft_commit, balance);
+
+        // update receipt_data with the associated data
+        Mapping::set(receipt_data, nft_commit, data);
     }
 }
