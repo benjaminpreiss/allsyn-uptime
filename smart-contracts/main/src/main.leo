@@ -3,10 +3,13 @@ import token_registry.aleo;
 // The 'aleo_checker_nft' program.
 program allsyn.aleo {
     // the public balance of each token for each owner is tracked by token_registry for me.
-    // In allsyn, we register a new token for every valuation. 
+    // In allsyn, we register a new token for every valuation.
 
     // the allsyn token_id from the token_registry
     const ALLSYN_TOKEN_ID: field = 01232field;
+    // historical data on the allsyn token id minted on official token registry
+    // keep up to date token id at index 0
+    mapping allsyn_token_id: u64 => field;
 
     // the smart contract admin
     const ALLSYN_ADMIN: address = aleo1007a9le5mn6pj08fdssmcvw0y9nc6x63erpll6aax3yech3qkcysdz39f2;
@@ -21,7 +24,7 @@ program allsyn.aleo {
     mapping check_cycle_valuation: u64 => DecimalValue;
 
     // token data. maps token_id from token_registry -> data
-    mapping data: field => Data;
+    mapping receipt_data: field => Data;
 
     // receipt balances
     // nft commits (which is hash of data and edition) => Balance
@@ -56,7 +59,7 @@ program allsyn.aleo {
         // At what valuation was the receipt generated?
         public valuation: DecimalValue,
     }
-    
+
     inline commit_nft(
         data: Data,
         edition: scalar
@@ -68,12 +71,12 @@ program allsyn.aleo {
 
     // Initialize the program after deployment.
     async transition init() -> Future {
+        // Make sure caller is ALLSYN_ADMIN
+        assert(self.caller == ALLSYN_ADMIN);
         return finalize_init();
     }
 
     async function finalize_init() {
-        // Make sure caller is ALLSYN_ADMIN
-        assert(self.caller == ALLSYN_ADMIN);
         // Set first check_cycle_valuation, if not already done
         if !Mapping::contains(check_cycle_valuation, 0u64) {
             let base_check_cycle_valuation: DecimalValue = DecimalValue {
@@ -82,16 +85,30 @@ program allsyn.aleo {
                 // check cycle value = 3$ / ( 0.1271 * 10^-6 ) ($ / allsyn token) / 4.320.000 check cycles = 5.463764315 allsyn token / check cycle
                 significand: 5463764315u64,
                 neg_exponent: 9u8
-            }
+            };
             Mapping::set(check_cycle_valuation, 0u64, base_check_cycle_valuation);
         }
+    }
+
+    // Function to allow the admin to update the current Allsyn token ID
+    async transition update_allsyn_token_id(
+        public new_token_id: field
+    ) -> Future {
+        // Ensure only the admin can call this function
+        assert_eq(self.caller, ALLSYN_ADMIN);
+
+        return finalize_update_allsyn_token_id(new_token_id);
+    }
+
+    async function finalize_update_allsyn_token_id(new_token_id: field) {
+        // Set the new token ID at index 0, representing the current official token ID
+        Mapping::set(allsyn_token_id, 0u64, new_token_id);
     }
 
     inline safe_pow10(exp: u8) -> u64 {
         assert(exp <= 19u8); // prevent overflow
         return 10u64 ** exp;
     }
-
 
     // buy check cycles <-> mint private receipt
     // pay with allsyn token
@@ -111,9 +128,10 @@ program allsyn.aleo {
         // commit has to be new to balances, as only new receipts can be minted.
         // Otherwise edition needs to be picked again.
         assert_eq(Mapping::contains(balances, receipt_nft_commit), false);
-
+        // allsyn token id from registry has to have been registered here
+        assert_eq(Mapping::contains(allsyn_token_id, 0u64), true);
         // token with which the user pays needs to be allsyn token
-        assert_eq(input.token_id, ALLSYN_TOKEN_ID);
+        assert_eq(input.token_id, Mapping::get(allsyn_token_id, 0u64));
         // check_cycle_valuation needs to exist
         assert_eq(Mapping::contains(check_cycle_valuation, 0u64), true);
 
@@ -122,19 +140,19 @@ program allsyn.aleo {
 
         // How much does the user need to pay in allsyn tokens? check_cycle_valuation x check_cycles
         let allsyn_token_amount_numerator: u64 = check_cycles * current_check_cycle_valuation.significand;
-        let allsyn_token_amount_denominator: u64 = safe_pow10(current_check_cycle_valuation.exponent);
+        let allsyn_token_amount_denominator: u64 = safe_pow10(current_check_cycle_valuation.neg_exponent);
         // Ceiling division, i.e. round allsyn_token_amount up. Wastes credits, only if you buy small amounts of check cycles
         let allsyn_token_amount: u64 = (allsyn_token_amount_numerator + allsyn_token_amount_denominator - 1u64) / allsyn_token_amount_denominator;
 
         // transfer allsyn token
-        let allsyn_token_change: token_registry.aleo/Token = token_registry.aleo/transfer_private_to_public(holder, allsyn_token_amount, input);
+        let allsyn_token_change: (token_registry.aleo/Token, Future) = token_registry.aleo/transfer_private_to_public(holder, allsyn_token_amount, input);
 
         // create receipt
         let receipt_change: Receipt = Receipt {
             owner: to,
             edition: edition,
             data: data,
-            check_cycles: check_cycles
+            check_cycles: check_cycles,
             valuation: current_check_cycle_valuation
         };
         let mint_receipt_future: Future = finalize_mint_receipt(receipt_nft_commit, check_cycles);
