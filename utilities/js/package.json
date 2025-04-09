@@ -1,0 +1,19 @@
+{
+  "name": "utilities-js",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.0",
+    "viem": "^2.26.2",
+    "web3": "^4.16.0"
+  },
+  "scripts": {
+    "generate-sol-devnet-wallet": "bun run ./src/generate-sol-devnet-wallet.ts"
+  }
+}
