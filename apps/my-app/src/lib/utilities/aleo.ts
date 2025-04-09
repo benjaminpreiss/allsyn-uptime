@@ -1,6 +1,7 @@
-import { Account, AleoNetworkClient, NetworkRecordProvider } from '@provablehq/sdk';
+import { Account, AleoNetworkClient, initializeWasm, NetworkRecordProvider } from '@provablehq/sdk';
 
-export function initClient(privateKey: string) {
+export async function initClient(privateKey: string) {
+	await initializeWasm();
 	const account = new Account({ privateKey });
 	const networkClient = new AleoNetworkClient('http://0.0.0.0:3030');
 	networkClient.setAccount(account);

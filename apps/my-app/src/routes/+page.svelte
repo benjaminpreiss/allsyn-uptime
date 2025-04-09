@@ -29,11 +29,15 @@
 {#if $aleo === undefined}
 	<div>Please set a private key</div>
 {:else}
-	{#await getAllsynAccountRecords({ networkClient: $aleo.networkClient })}
-		<div>Retrieving Aleo records</div>
-	{:then records}
-		{#each records as record}
-			<div>{record.toString()}</div>
-		{/each}
+	{#await $aleo}
+		<div>Initializing client</div>
+	{:then aleoAwaited}
+		{#await getAllsynAccountRecords({ networkClient: aleoAwaited.networkClient })}
+			<div>Retrieving Aleo records</div>
+		{:then records}
+			{#each records as record}
+				<div>{record.toString()}</div>
+			{/each}
+		{/await}
 	{/await}
 {/if}
