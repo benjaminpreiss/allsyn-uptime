@@ -1,5 +1,6 @@
 import { Uploader } from '@irys/upload';
 import { Solana } from '@irys/upload-solana';
+import BaseNodeIrys from '@irys/upload/esm/base';
 
 export async function getIrysSolanaDevnetUploader(privateKey: string, rpc: string) {
 	// RPC URLs change often. Use a current one from https://chainlist.org/
@@ -7,3 +8,17 @@ export async function getIrysSolanaDevnetUploader(privateKey: string, rpc: strin
 
 	return irysUploader;
 }
+
+type UploadResponse = Awaited<ReturnType<typeof BaseNodeIrys.prototype.uploader.uploadData>>;
+
+export type IrysUploadApiSuccessResponse = {
+	success: true;
+	receipt: UploadResponse;
+};
+
+export type IrysUploadApiResponse =
+	| {
+			success: true;
+			receipt: UploadResponse;
+	  }
+	| { success: false; error: string };

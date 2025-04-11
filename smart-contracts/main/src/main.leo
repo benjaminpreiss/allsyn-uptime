@@ -7,7 +7,13 @@ program allsyn.aleo {
     // Maximum allowed evaluation deviation when minting receipts
     const MAX_PERCENTAGE_DEVIATION: u64 = 3u64;
     // the smart contract admin
-    const ALLSYN_ADMIN: address = aleo1007a9le5mn6pj08fdssmcvw0y9nc6x63erpll6aax3yech3qkcysdz39f2;
+    const ALLSYN_ADMIN: address = aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    // The allsyn token data
+    const ALLSYN_TOKEN_ID: field = 12736872field;
+    const ALLSYN_TOKEN_NAME: u128 = 1273687u128;
+    const ALLSYN_TOKEN_SYMBOL: u128 = 1273687u128;
+    const ALLSYN_TOKEN_DECIMALS: u8 = 6u8;
+    const ALLSYN_TOKEN_MAX_SUPPLY: u128 = 1000000000u128;
 
     // historical data on the allsyn token id minted on official token registry
     // keep up to date token id at index 0
@@ -87,6 +93,39 @@ program allsyn.aleo {
             };
             Mapping::set(check_cycle_valuation, 0u64, base_check_cycle_valuation);
         }
+    }
+
+    // Registers a new allsyn token
+    async transition register_allsyn_token() -> Future {
+        // Ensure only the admin can call this function
+        assert_eq(self.caller, ALLSYN_ADMIN);
+
+        // register Token
+        let register_token_future: Future = token_registry.aleo/register_token(ALLSYN_TOKEN_ID, ALLSYN_TOKEN_NAME, ALLSYN_TOKEN_SYMBOL, ALLSYN_TOKEN_DECIMALS, ALLSYN_TOKEN_MAX_SUPPLY, false, ALLSYN_ADMIN);
+        let finalize_future: Future = finalize_register_allsyn_token(register_token_future);
+        return finalize_future;
+    }
+
+    async function finalize_register_allsyn_token(register_token_future: Future) {
+        register_token_future.await();
+        // Set the new token ID at index 0, representing the current official token ID
+        Mapping::set(allsyn_token_id, 0u64, ALLSYN_TOKEN_ID);
+    }
+
+    // Top up token reservoir on smart contract
+    // WARNING! anyone can do this currently and it doesnt cost anything.
+    async transition mint_tokens_private(
+        public amount: u128,
+        private recipient: address
+    ) -> (token_registry.aleo/Token, Future) {
+        // mint new tokens
+        let (mint_token_change, mint_token_future) : (token_registry.aleo/Token,Future) = token_registry.aleo/mint_private(ALLSYN_TOKEN_ID, recipient, amount, false, 0u32);
+        let finalize_future: Future = finalize_mint_tokens_private(mint_token_future);
+        return (mint_token_change, finalize_future);
+    }
+
+    async function finalize_mint_tokens_private(mint_token_future: Future) {
+        mint_token_future.await();
     }
 
     // Function to allow the admin to update the current Allsyn token ID

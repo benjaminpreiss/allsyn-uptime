@@ -4,6 +4,7 @@ import {
   LAMPORTS_PER_SOL,
   clusterApiUrl,
 } from "@solana/web3.js";
+import bs58 from "bs58";
 
 // Generate a new random keypair
 const keypair = Keypair.generate();
@@ -14,7 +15,7 @@ const privateKey = keypair.secretKey;
 // Get the public key (address)
 const publicKey = keypair.publicKey.toString();
 
-console.log("private key:", Buffer.from(privateKey).toString("hex"));
+console.log("private key:", bs58.encode(privateKey));
 console.log("public key:", publicKey);
 
 // Connect to Solana devnet

@@ -131,5 +131,10 @@ Then, to start developing:
 
 Optional steps (if not done already):
 
-1. Deploy smart contract on aleo: `cd smart-contracts/main && leo deploy --endpoint "http://0.0.0.0:3030" --private-key "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"`
-2. Take note of the above smart-contract address and put it into your .env file as
+1. Import private key from amaraleo-chain into leo: `leo account import APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH`
+2. Deploy smart contract on aleo: `cd smart-contracts/main && leo build && leo deploy --endpoint "http://0.0.0.0:3030" --private-key "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"`
+3. Take note of the above smart-contract address and put it into your .env file as
+4. Init the smart contract: `leo execute --endpoint "http://0.0.0.0:3030" --program allsyn.aleo init`.
+5. Register the allsyn token through the smart contract: `leo execute --endpoint "http://0.0.0.0:3030" --program allsyn.aleo register_allsyn_token`
+6. Make sure to register the allsyn token on your development chain: `leo execute --endpoint "http://0.0.0.0:3030" --program token_registry.aleo register_token 12736872field 1273687u128 1273687u128 6u8 false aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc`
+7. Send some allsyn tokens for free to the development wallet: `leo execute --endpoint "http://0.0.0.0:3030" --program allsyn.aleo mint_tokens_private 1u128 aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px`

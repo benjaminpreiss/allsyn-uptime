@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "dotenv -- pnpm -r run dev"
+    "dev": "dotenv -- pnpm -r run dev",
+    "generate-sol-devnet-wallet": "pnpm -r generate-sol-devnet-wallet"
   },
   "keywords": [],
   "author": "",
