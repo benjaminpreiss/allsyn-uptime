@@ -21,14 +21,14 @@ echo "$DEPLOYMENT_OUTPUT"
 
 # Step 4: Initialize the smart contract
 echo "Initializing smart contract..."
-leo execute --endpoint "$ENDPOINT" --program "allsyn.aleo" init
+leo execute --endpoint "$ENDPOINT" --broadcast --program "allsyn.aleo" init
 
 # Step 5: Register the allsyn token through the smart contract
 echo "Registering allsyn token through smart contract..."
-leo execute --endpoint "$ENDPOINT" --program "allsyn.aleo" register_allsyn_token
+leo execute --endpoint "$ENDPOINT" --broadcast --program "allsyn.aleo" register_allsyn_token
 
 # Step 6: Mint some tokens and send them to the development wallet
 echo "Minting tokens and sending to development wallet..."
-leo execute --endpoint "$ENDPOINT" --program "allsyn.aleo" mint_tokens_private "$TOKEN_AMOUNT" "$WALLET_ADDRESS"
+leo execute --endpoint "$ENDPOINT" --broadcast --program "allsyn.aleo" mint_tokens_private "$TOKEN_AMOUNT" "$WALLET_ADDRESS"
 
 echo "Initialization completed successfully!"
