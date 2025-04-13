@@ -112,7 +112,7 @@ export async function buyReceipt({
 		privateKey: account.privateKey() // Set the private key
 	};
 	console.log(executeOptions);
-	/*
+
 	const tx = await programManager.buildExecutionTransaction(executeOptions);
 
 	console.log('Submitting transaction...');
@@ -128,7 +128,7 @@ export async function buyReceipt({
 			console.error(e);
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 		}
-		}*/
+	}
 }
 
 export async function aleoGetLatestHeight() {
