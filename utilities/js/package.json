@@ -16,5 +16,6 @@
   },
   "scripts": {
     "generate-sol-devnet-wallet": "bun run ./src/generate-sol-devnet-wallet.ts"
-  }
+  },
+  "packageManager": "pnpm@10.8.0"
 }

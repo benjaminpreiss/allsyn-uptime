@@ -3,7 +3,12 @@
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import { zodClient, zod } from 'sveltekit-superforms/adapters';
 	import { type SuperValidated, type Infer, superForm, defaults } from 'sveltekit-superforms';
-	import { aleoAccount } from '$lib/utilities/aleo';
+	import {
+		aleoAccount,
+		buyReceipt,
+		getAllsynAccountRecords,
+		aleoProgramManager
+	} from '$lib/utilities/aleo';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
@@ -12,6 +17,11 @@
 	import { checkerFormSchema, formToMetadata, type CheckerFormSchema } from './schema';
 	import { page } from '$app/stores';
 	import type { IrysUploadApiSuccessResponse } from '$lib/utilities/irys';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { derived } from 'svelte/store';
+	import type { Account, ProgramManager, RecordPlaintext } from '@provablehq/sdk';
+
+	let { allsynToken }: { allsynToken?: RecordPlaintext } = $props();
 
 	let open = $state(false);
 
@@ -34,8 +44,20 @@
 					const response = await fetch('http://localhost:5173/api/upload', options);
 					const data: IrysUploadApiSuccessResponse = await response.json();
 					const irysTxId = data.receipt.id;
+					console.log('successfully created irys token');
+					if (!$aleoAccount) throw new Error('aleo account is currently not defined');
+					if (!$aleoProgramManager)
+						throw new Error('aleo program manager is currently not defined');
+					if (!allsynToken) throw new Error('Allsyn tokens is currently not defined');
+					await buyReceipt({
+						allsynToken,
+						account: $aleoAccount,
+						irys_tx_id: irysTxId,
+						programManager: $aleoProgramManager
+					});
 					console.log(data);
 				} catch (err) {
+					console.log(err);
 					cancel();
 				}
 			}
@@ -49,8 +71,16 @@
 </script>
 
 <Sheet.Root bind:open>
-	<Sheet.Trigger disabled={!$aleoAccount}>
-		<Button disabled={!$aleoAccount}>Register new uptime check</Button>
+	<Sheet.Trigger disabled={!$aleoAccount || !$aleoProgramManager || !allsynToken}>
+		<Button disabled={!$aleoAccount || !$aleoProgramManager || !allsynToken}
+			>{!$aleoAccount
+				? 'Loading aleo account'
+				: !$aleoProgramManager
+					? 'Loading aleo program manager'
+					: !allsynToken
+						? 'Loading allsyn Tokens'
+						: 'Register new uptime check'}</Button
+		>
 	</Sheet.Trigger>
 	<Sheet.Content side="right" class="!max-w-2xl">
 		<Sheet.Header>
@@ -147,7 +177,15 @@
 				<Form.FieldErrors />
 			</Form.Field>
 			<Sheet.Footer>
-				<Form.Button type="submit">Submit</Form.Button>
+				<Form.Button disabled={!$aleoAccount || !$aleoProgramManager || !allsynToken} type="submit"
+					>{!$aleoAccount
+						? 'Loading aleo account'
+						: !$aleoProgramManager
+							? 'Loading aleo program manager'
+							: !allsynToken
+								? 'Loading allsyn Tokens'
+								: 'Submit'}</Form.Button
+				>
 			</Sheet.Footer>
 		</form>
 	</Sheet.Content>

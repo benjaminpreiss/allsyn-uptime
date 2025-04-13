@@ -1,0 +1,3 @@
+[submodule "checker-network/simple-subnet-api"]
+	path = checker-network/simple-subnet-api
+	url = git@github.com:benjaminpreiss/simple-subnet-api.git

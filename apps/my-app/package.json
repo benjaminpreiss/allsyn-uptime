@@ -57,6 +57,8 @@
 		"@irys/upload-solana": "^0.1.8",
 		"@provablehq/sdk": "^0.8.8",
 		"@sveltestack/svelte-query": "^1.6.0",
-		"@tanstack/svelte-query": "^5.72.2"
-	}
+		"@tanstack/svelte-query": "^5.72.2",
+		"bs58": "^6.0.0"
+	},
+	"packageManager": "pnpm@10.8.0"
 }

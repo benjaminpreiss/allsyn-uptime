@@ -7,7 +7,7 @@ program allsyn.aleo {
     // Maximum allowed evaluation deviation when minting receipts
     const MAX_PERCENTAGE_DEVIATION: u64 = 3u64;
     // the smart contract admin
-    const ALLSYN_ADMIN: address = aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    const ALLSYN_ADMIN: address = $ALEO_ADMIN_ADDRESS;
     // The allsyn token data
     const ALLSYN_TOKEN_ID: field = 12736872field;
     const ALLSYN_TOKEN_NAME: u128 = 1273687u128;

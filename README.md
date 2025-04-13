@@ -120,14 +120,15 @@ This database can then be queried (by selecting the peer itself and a random oth
 
 This is how you get started:
 
-1. Make sure you have installed all dependencies, noteworthy: `node@22`, `pnpm@10`, `leo`, `snarkOS`, `amaraleo-chain`
-2. Run `pnpm i` from the root of your project
+1. Make sure you have installed all dependencies, noteworthy: `node@22`, `pnpm@10`, `leo`, `snarkOS`, `amaraleo-chain`, `parallel` (gnu parallel)
+2. Run `pnpm i` from the root of your project. This will also install `zinnia` for you automatically, depending on your environment. It will require your root password from you.
+3. Start a docker environment (e.g. Rancher Desktop or Docker Desktop) on your computer with `docker compose` available (not `docker-compose`!).
+4. Make sure you have a solana wallet setup with sufficient devnet credits (e.g. 1 SOL). The app needs this to mint tokens on irys.
 
 Then, to start developing:
 
 1. Setup `.env` file in the root of the project
-2. Run `amaraleo-chain`, also from the root: `amaraleo-chain start`
-3. Run node packages from root: `pnpm dev`. This will start the frontend.
+2. Run node packages from root: `pnpm dev`. This will start the frontend.
 
 Optional steps (if not done already):
 

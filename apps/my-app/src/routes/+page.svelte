@@ -22,7 +22,12 @@
 			queryKey: ['records', $aleoAccount?.address],
 			enabled: !!$aleoAccount,
 			queryFn: async () =>
-				$aleoAccount === undefined ? [] : await getAllsynAccountRecords({ account: $aleoAccount })
+				$aleoAccount === undefined
+					? []
+					: await getAllsynAccountRecords({
+							account: $aleoAccount,
+							programs: ['token_registry.aleo', 'allsyn.aleo']
+						})
 		}))
 	);
 
@@ -63,7 +68,7 @@
 				{/if}
 			</Card.Content>
 			<Card.Footer class="flex justify-start">
-				<CheckerForm />
+				<CheckerForm allsynToken={$aleoAccountRecords.data?.[0]} />
 			</Card.Footer>
 		</Card.Root>
 		<Card.Root class="w-full max-w-screen-lg">

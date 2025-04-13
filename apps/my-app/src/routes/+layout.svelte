@@ -3,6 +3,7 @@
 	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 	import '../app.css';
+	import { browser } from '$app/environment';
 	let { children } = $props();
 
 	// Create a client
@@ -11,6 +12,8 @@
 
 <ParaglideJS {i18n}>
 	<QueryClientProvider client={queryClient}>
-		{@render children()}
+		{#if browser}
+			{@render children()}
+		{/if}
 	</QueryClientProvider>
 </ParaglideJS>

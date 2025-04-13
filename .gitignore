@@ -3,3 +3,4 @@ node_modules
 .amareleo-*
 smart-contracts/main/build
 .DS_Store
+allsyn-checker
