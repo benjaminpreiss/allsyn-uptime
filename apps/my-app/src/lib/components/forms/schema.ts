@@ -9,7 +9,7 @@ export const checkerFormSchema = z.object({
 	subjectQuery: z.string().min(1).nullable(),
 	subjectFragment: z.string().min(1).nullable(),
 	keyPort: z.boolean().default(false),
-	keyStatus: z.number().nullable()
+	keyStatus: z.string().nullable()
 });
 
 export type CheckerFormSchema = z.infer<typeof checkerFormSchema>;
@@ -17,7 +17,7 @@ export type CheckerFormSchema = z.infer<typeof checkerFormSchema>;
 // transform form data to metadata pushable to an nft
 export function formToMetadata({ form }: { form: CheckerFormSchema }) {
 	const metadata: z.infer<typeof ReceiptMetadataSchema> = {
-		keys: { port: form.keyPort, status: form.keyStatus ?? undefined },
+		keys: { port: form.keyPort, status: form.keyStatus ? parseInt(form.keyStatus) : undefined },
 		subject: {
 			authority: { host: form.subjectAuthorityHost, port: form.subjectAuthorityPort ?? undefined },
 			scheme: form.subjectScheme,

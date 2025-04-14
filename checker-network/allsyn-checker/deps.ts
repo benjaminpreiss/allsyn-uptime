@@ -6,4 +6,5 @@
 // You must use a 1.x version of Deno, e.g. v1.43.1
 //
 // Deno Bundle does not support npm dependencies, we have to load them via CDN
-export { getFullnodeUrl, SuiClient } from 'https://esm.sh/@mysten/sui@1.24.0/client';
+export { default as bs58 } from "bs58";
+export { randomBytes } from "@stablelib/random";

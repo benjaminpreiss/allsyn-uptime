@@ -1,47 +1,35 @@
 /* global Zinnia */
 
-import { DEFAULT_AGGREGATORS } from './lib/nodes.js'
-import { getBlobs } from './lib/blobs.js'
-import { measure } from './lib/measure.js'
-import { MEASUREMENT_DELAY, SUI_NETWORK, WALRUS_STATE_OBJECT_ID } from './lib/constants.js'
-import { pickRandomItem } from './lib/random.js'
-import { getFullnodeUrl, SuiClient } from './vendor/deno-deps.js'
-import { submit } from './lib/submit-measurement.js'
-
-const suiRpcUrl = getFullnodeUrl(SUI_NETWORK)
-const suiClient = new SuiClient({ url: suiRpcUrl })
-
-/**
- * Fetches the active Walrus epoch
- *
- * @param {SuiClient} client SUI client
- * @returns {Promise<number>} Current Walrus epoch
- */
-const getActiveWalrusEpoch = async (client) => {
-  const object = await client.getObject({
-    id: WALRUS_STATE_OBJECT_ID,
-    options: { showContent: true }
-  })
-
-  return object.data.content.fields.value.fields.epoch
-}
+import { measure } from "./lib/measure.js";
+import { MEASUREMENT_DELAY } from "./lib/constants.js";
+import { randomBigInt } from "./lib/random.js";
+import { submit } from "./lib/submit-measurement.js";
+import {
+  getActiveChecksMappingSize,
+  getIrysTxId,
+  getNftCommit,
+  loadMetadataFromIrys,
+} from "./lib/from-chain.js";
 
 while (true) {
   try {
-    const activeEpoch = await getActiveWalrusEpoch(suiClient)
-    const blobs = await getBlobs(activeEpoch)
-    console.log(`Found ${blobs.length} blobs`)
-    const measurement = await measure(
-      pickRandomItem(DEFAULT_AGGREGATORS),
-      pickRandomItem(blobs)
-    )
-    console.log('measurement:', measurement)
-    await submit(measurement)
-    Zinnia.jobCompleted()
+    const activeChecksMappingSize = await getActiveChecksMappingSize();
+    // fake randomness - we just pick the last element always
+    const pickedCheck = randomBigInt(0n, activeChecksMappingSize - 1n);
+    // retrieve nft commit
+    const nftCommit = await getNftCommit(pickedCheck);
+    // retrieve irys tx id as base58 encoded
+    const irysTxIdBs58 = await getIrysTxId(nftCommit);
+    // load metadata from irys
+    const metadata = await loadMetadataFromIrys(irysTxIdBs58);
+    const measurement = await measure(metadata);
+    console.log("measurement:", measurement);
+    await submit(measurement);
+    Zinnia.jobCompleted();
   } catch (err) {
-    console.error('Error:', err)
+    console.error("Error:", err);
   }
 
-  console.log(`Waiting ${MEASUREMENT_DELAY / 1_000} seconds...`)
-  await new Promise(resolve => setTimeout(resolve, MEASUREMENT_DELAY))
+  console.log(`Waiting ${MEASUREMENT_DELAY / 1_000} seconds...`);
+  await new Promise((resolve) => setTimeout(resolve, MEASUREMENT_DELAY));
 }

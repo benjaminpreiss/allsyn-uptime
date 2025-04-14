@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "dotenv -- pnpm -r run dev",
+    "dev:app": "dotenv -- pnpm --filter my-app dev",
     "generate-sol-devnet-wallet": "pnpm -r generate-sol-devnet-wallet",
     "init-chain-dev": "./scripts/init-chain-dev.sh",
     "add-irys": "./scripts/add-irys.sh"

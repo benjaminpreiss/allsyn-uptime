@@ -3,6 +3,7 @@ import {
 	AleoKeyProvider,
 	AleoNetworkClient,
 	NetworkRecordProvider,
+	Plaintext,
 	ProgramManager,
 	RecordPlaintext,
 	Scalar
@@ -116,6 +117,7 @@ async function loadMetadata({ irysTxId }: { irysTxId: [bigint, bigint] }) {
 }
 
 export async function loadRecordMetadata({ record }: { record: RecordPlaintext }) {
+	console.log(record.toString());
 	const data = record.getMember('data').toObject() as {
 		metadata: { irys_tx_id: [bigint, bigint] };
 	};

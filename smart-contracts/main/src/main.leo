@@ -35,6 +35,16 @@ program allsyn.aleo {
     // nft commits (which is hash of data and edition) => Balance
     mapping balances: field => u64;
 
+    // size of active checks list
+    mapping active_checks_size: u8 => u64;
+
+    // active checks list
+    // index starting at 0 => nft_commits
+    mapping active_checks: u64 => field;
+
+    // reverse active checks list
+    mapping active_checks_reverse: field => u64;
+
     // The token valuation represented as an unsigned int (significand) x exponent (to base 10).
     // So e.g. (104, -1) would be 10.4
     struct DecimalValue {
@@ -92,7 +102,10 @@ program allsyn.aleo {
                 significand: 5463764315u64,
                 neg_exponent: 9u8
             };
+            // Set a base valuation
             Mapping::set(check_cycle_valuation, 0u64, base_check_cycle_valuation);
+            // Set the size of active checks to 0
+            Mapping::set(active_checks_size, 0u8, 0u64);
         }
     }
 
@@ -262,5 +275,15 @@ program allsyn.aleo {
 
         // update receipt_data with the associated data
         Mapping::set(receipt_data, nft_commit, data);
+
+        // get current size of active checks
+        let size_active_checks: u64 = Mapping::get_or_use(active_checks_size, 0u8, 0u64);
+        // what index to set on active_checks
+        let change_index: u64 = Mapping::get_or_use(active_checks_reverse, nft_commit, size_active_checks);
+        // add to active check (and reverse) if not present, then increment active checks size
+        // otherwise change active check
+        Mapping::set(active_checks_reverse, nft_commit, change_index);
+        Mapping::set(active_checks, change_index, nft_commit);
+        Mapping::set(active_checks_size, 0u8, size_active_checks + 1u64);
     }
 }
