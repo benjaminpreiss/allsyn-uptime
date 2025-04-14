@@ -1,25 +1,15 @@
 <script lang="ts">
 	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import { zodClient, zod } from 'sveltekit-superforms/adapters';
-	import { type SuperValidated, type Infer, superForm, defaults } from 'sveltekit-superforms';
-	import {
-		aleoAccount,
-		buyReceipt,
-		getAllsynAccountRecords,
-		aleoProgramManager
-	} from '$lib/utilities/aleo';
+	import { zod } from 'sveltekit-superforms/adapters';
+	import { superForm, defaults } from 'sveltekit-superforms';
+	import { aleoAccount, buyReceipt, aleoProgramManager } from '$lib/utilities/aleo';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import * as Form from '$lib/components/ui/form/index.js';
-	import { checkerFormSchema, formToMetadata, type CheckerFormSchema } from './schema';
-	import { page } from '$app/stores';
+	import { checkerFormSchema, formToMetadata } from './schema';
 	import type { IrysUploadApiSuccessResponse } from '$lib/utilities/irys';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { derived } from 'svelte/store';
-	import type { Account, ProgramManager, RecordPlaintext } from '@provablehq/sdk';
+	import type { RecordPlaintext } from '@provablehq/sdk';
 
 	let { allsynToken }: { allsynToken?: RecordPlaintext } = $props();
 
@@ -44,7 +34,7 @@
 					const response = await fetch('http://localhost:5173/api/upload', options);
 					const data: IrysUploadApiSuccessResponse = await response.json();
 					const irysTxId = data.receipt.id;
-					console.log('successfully created irys token');
+					console.log('successfully created irys token', irysTxId);
 					if (!$aleoAccount) throw new Error('aleo account is currently not defined');
 					if (!$aleoProgramManager)
 						throw new Error('aleo program manager is currently not defined');

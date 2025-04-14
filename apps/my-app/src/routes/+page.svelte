@@ -3,31 +3,52 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
+	import * as Table from '$lib/components/ui/table/index.js';
 	import { derived, writable } from 'svelte/store';
 	import {
 		aleoGetLatestHeight,
 		getAllsynAccountRecords,
 		aleoAccount,
-		aleoPrivateKey
+		aleoPrivateKey,
+		loadRecordMetadata,
+		getReceiptTokenIdBs58
 	} from '$lib/utilities/aleo';
 	import { createQuery } from '@tanstack/svelte-query';
 	import CheckerForm from '$lib/components/forms/CheckerForm.svelte';
+	import { stringifySubject } from '$lib/utilities/schemas';
+	import { goto } from '$app/navigation';
 
 	const aleoLatestHeightQuery = createQuery({
 		queryKey: ['latest-height'],
 		queryFn: aleoGetLatestHeight
 	});
-	const aleoAccountRecords = createQuery(
+	const aleoReceiptRecords = createQuery(
 		derived(aleoAccount, ($aleoAccount) => ({
-			queryKey: ['records', $aleoAccount?.address],
+			queryKey: ['receipts', $aleoAccount?.address],
 			enabled: !!$aleoAccount,
 			queryFn: async () =>
 				$aleoAccount === undefined
 					? []
 					: await getAllsynAccountRecords({
 							account: $aleoAccount,
-							programs: ['token_registry.aleo', 'allsyn.aleo']
+							programs: ['allsyn.aleo']
 						})
+		}))
+	);
+
+	const aleoAllsynTokenRecords = createQuery(
+		derived(aleoAccount, ($aleoAccount) => ({
+			queryKey: ['allsyn-token-records', $aleoAccount?.address],
+			enabled: !!$aleoAccount,
+			queryFn: async () => {
+				if ($aleoAccount === undefined) return [];
+				const records = await getAllsynAccountRecords({
+					account: $aleoAccount,
+					programs: ['token_registry.aleo']
+				});
+				console.log(records.toString());
+				return records;
+			}
 		}))
 	);
 
@@ -51,24 +72,52 @@
 				</Card.Description>
 			</Card.Header>
 			<Card.Content class="h-full">
-				{#if $aleoAccountRecords.isLoading}
+				{#if $aleoReceiptRecords.isLoading}
 					Loading your records
-				{:else if $aleoAccountRecords.isError}
+				{:else if $aleoReceiptRecords.isError}
 					Error loading your records
-				{:else if $aleoAccountRecords.isSuccess}
-					{#if $aleoAccountRecords.data.length === 0}
+				{:else if $aleoReceiptRecords.isSuccess}
+					{#if $aleoReceiptRecords.data.length === 0}
 						No records found for your account
 					{:else}
-						{#each $aleoAccountRecords.data as record}
-							<div>{record.toString()}</div>
-						{/each}
+						<div>
+							<Table.Root>
+								<Table.Header>
+									<Table.Row>
+										<Table.Head class="w-[100px]">Check subject</Table.Head>
+										<Table.Head>Check port</Table.Head>
+										<Table.Head>Check status</Table.Head>
+									</Table.Row>
+								</Table.Header>
+								<Table.Body>
+									{#each $aleoReceiptRecords.data as record}
+										{#await loadRecordMetadata({ record }) then recordMetadata}
+											<Table.Row
+												class="cursor-pointer"
+												onclick={() => goto(`checks/${getReceiptTokenIdBs58({ record })}`)}
+											>
+												<Table.Cell class="font-medium"
+													>{stringifySubject(recordMetadata.subject)}</Table.Cell
+												>
+												<Table.Cell>{recordMetadata.keys.port ?? '-'}</Table.Cell>
+												<Table.Cell
+													>{recordMetadata.keys.status === undefined
+														? '-'
+														: recordMetadata.keys.status}</Table.Cell
+												>
+											</Table.Row>
+										{/await}
+									{/each}
+								</Table.Body>
+							</Table.Root>
+						</div>
 					{/if}
 				{:else}
 					Please setup private key to continue
 				{/if}
 			</Card.Content>
 			<Card.Footer class="flex justify-start">
-				<CheckerForm allsynToken={$aleoAccountRecords.data?.[0]} />
+				<CheckerForm allsynToken={$aleoAllsynTokenRecords.data?.[0]} />
 			</Card.Footer>
 		</Card.Root>
 		<Card.Root class="w-full max-w-screen-lg">

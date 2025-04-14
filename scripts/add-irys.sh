@@ -42,14 +42,18 @@ snarkos developer execute \
     --network "$NETWORK" \
     --broadcast "$BROADCAST_URL" \
     --private-key "$ALEO_USER_PRIVATE_KEY" \
-    --priority-fee 10000 allsyn.aleo mint_private_receipt "{
-      owner: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
-      amount: 10000000u128.private,
-      token_id: 12736872field.private,
-      external_authorization_required: false.private,
-      authorized_until: 0u32.private,
-      _nonce: 4526087651466527109438723205221316164248660237157476319357206930661289405546group.public
-    }" "aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t" "100u64" "230867001151037650101159673870871542737u128" "310636350053971838204925215406708058609u128" "1166361486445601628865019934670571889718946669077620974963023976486173097653scalar" "{
-	significand: 5463764315u64,
-	neg_exponent: 9u8
-    }"
+    --priority-fee 10000 allsyn.aleo mint_private_receipt \
+        "{
+          owner: aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t.private,
+          amount: 10000000u128.private,
+          token_id: 12736872field.private,
+          external_authorization_required: false.private,
+          authorized_until: 0u32.private,
+          _nonce: 8123085266098961832719584703119690211324871253953510195035594958868262961142group.public
+        }" \
+        "aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t" \
+        "100u64" \
+        "230867001151037650101159673870871542737u128" \
+        "310636350053971838204925215406708058609u128" \
+        "1166361486445601628865019934670571889718946669077620974963023976486173097653scalar" \
+        "{ significand: 5463764315u64, neg_exponent: 9u8 }"

@@ -18,11 +18,11 @@ export const ReceiptMetadataSchema1 = z.object({
 			// port can optionally be specified, mostly given by scheme (e.g. https -> 443)
 			port: subjectAuthorityPortSchema
 		}),
-		// The path after google.com:8042/path/here
+		// The path after google.com:8042/path/here, so /path/here
 		path: subjectPathSchema,
-		// The part :8042/over/there?query=here
+		// The part :8042/over/there?query=here, so ?query=here
 		query: subjectQuerySchema,
-		// The part after query: ?name=ferret#frament-here
+		// The part after query: ?name=ferret#frament-here, so #fragment-here
 		fragment: subjectFragmentSchema
 	}), // RFC3986 URL
 	keys: z
@@ -38,3 +38,14 @@ export const ReceiptMetadataSchema1 = z.object({
 });
 
 export const ReceiptMetadataSchema = ReceiptMetadataSchema1;
+
+export function stringifySubject({
+	scheme,
+	authority,
+	path,
+	query,
+	fragment
+}: z.infer<typeof ReceiptMetadataSchema>['subject']) {
+	const port = authority.port ? ':' + authority.port : '';
+	return scheme + '://' + authority.host + port + (path ?? '') + (query ?? '') + (fragment ?? '');
+}

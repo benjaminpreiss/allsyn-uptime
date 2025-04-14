@@ -58,6 +58,7 @@ program allsyn.aleo {
     record Receipt {
         private owner: address,
         private edition: scalar,
+        public token_id: field,
         public data: Data,
         // transacted amount of check cycles, cannot be < 0 and is integer.
         public check_cycles: u64,
@@ -223,6 +224,7 @@ program allsyn.aleo {
         let receipt_change: Receipt = Receipt {
             owner: to,
             edition: edition,
+            token_id: receipt_nft_commit,
             data: data,
             check_cycles: check_cycles,
             valuation: current_check_cycle_valuation
