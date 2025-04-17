@@ -49,7 +49,7 @@ snarkos developer execute \
           token_id: 12736872field.private,
           external_authorization_required: false.private,
           authorized_until: 0u32.private,
-          _nonce: 3188020792449625778536559465400093744672780781523760930524589585747088028097group.public
+          _nonce: 1673245313658979593209121361725410605533514225059991916733579585005588085414group.public
         }" \
         "aleo1s3ws5tra87fjycnjrwsjcrnw2qxr8jfqqdugnf0xzqqw29q9m5pqem2u4t" \
         "100u64" \
