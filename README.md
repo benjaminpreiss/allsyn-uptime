@@ -21,6 +21,8 @@ Painless onramp like paying on web2 platforms.
 
 Trustless alerting means you don't have to trust me as a provider to deliver the alerts. A failure to alert is punished by slashing of rewards.
 
+[Demo video of mvp](https://lvpr.tv?v=f52a6acfdc3zdub5)
+
 ### 3 - Technology
 
 Allsyn leverages advancements in technology to offer a product with best-in-class UX and the above properties.
